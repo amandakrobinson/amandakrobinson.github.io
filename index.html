@@ -965,25 +965,52 @@
         </div>
     </footer>
 
-    <script>
-        function showPage(pageId) {
-            // Hide all pages
-            const pages = document.querySelectorAll('.page');
-            pages.forEach(page => page.classList.remove('active'));
-            
-            // Remove active class from all nav links
-            const navLinks = document.querySelectorAll('.nav-link');
-            navLinks.forEach(link => link.classList.remove('active'));
-            
-            // Show selected page
-            document.getElementById(pageId).classList.add('active');
-            
-            // Add active class to clicked nav link
-            event.target.classList.add('active');
-            
-            // Scroll to top
-            window.scrollTo(0, 0);
+  <script>
+    function showPage(pageId, updateHistory = true) {
+        // Hide all pages
+        const pages = document.querySelectorAll('.page');
+        pages.forEach(page => page.classList.remove('active'));
+
+        // Remove active class from all nav links
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => link.classList.remove('active'));
+
+        // Show selected page
+        const target = document.getElementById(pageId);
+        if (target) {
+            target.classList.add('active');
+        } else {
+            // Fallback to home if page not found
+            document.getElementById('home').classList.add('active');
+            pageId = 'home';
         }
-    </script>
+
+        // Update active nav link
+        const activeLink = document.querySelector(`[onclick="showPage('${pageId}')"]`);
+        if (activeLink) activeLink.classList.add('active');
+
+        // Update the URL hash without triggering a page reload
+        if (updateHistory) {
+            history.pushState(null, '', '#' + pageId);
+        }
+
+        // Scroll to top
+        window.scrollTo(0, 0);
+    }
+
+    // On load, read the hash and show the right page
+    function loadFromHash() {
+        const hash = window.location.hash.replace('#', '');
+        const validPages = ['home', 'research', 'publications', 'people', 'media', 'contact'];
+        const pageToShow = validPages.includes(hash) ? hash : 'home';
+        showPage(pageToShow, false);
+    }
+
+    // Handle back/forward browser buttons
+    window.addEventListener('popstate', loadFromHash);
+
+    // Run on initial load
+    window.addEventListener('DOMContentLoaded', loadFromHash);
+</script>
 </body>
 </html>
